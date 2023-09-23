@@ -9,10 +9,14 @@ module.exports = (env) => {
 	return {
 		target,
 		mode: env.mode,
-		entry: './src/index.ts',
-		devtool: 'inline-source-map',
+		entry: './src/index.tsx',
+		devtool: 'source-map',
 		devServer: {
-			static: './dist'
+			static: path.resolve(__dirname, 'dist'),
+			port: 8080,
+			hot: true,
+			compress: true,
+			historyApiFallback: true,
 		},
 		output: {
 			filename: "[name].[contenthash].js",
@@ -23,6 +27,7 @@ module.exports = (env) => {
 		plugins: [
 			new HtmlWebpackPlugin({
 				title: "Webpack App",
+				template: "./public/index.html",
 				minify: isProduction
 			}),
 			new MiniCssExtractPlugin({
@@ -39,8 +44,9 @@ module.exports = (env) => {
 						options: {
 							cacheDirectory: true,
 							presets: [
-								['@babel/preset-env', { targets: "defaults" }]
-							]
+								['@babel/preset-env', { targets: "defaults" }],
+								['@babel/preset-react']
+							],
 						}
 					}
 				},
@@ -48,7 +54,7 @@ module.exports = (env) => {
 					test: /\.(css|scss|sass)$/i,
 					include: path.resolve(__dirname, 'src'),
 					use: [
-						MiniCssExtractPlugin.loader,
+						isProduction ? MiniCssExtractPlugin.loader : 'style-loader',
 						'css-loader',
 						'postcss-loader',
 						'sass-loader'
